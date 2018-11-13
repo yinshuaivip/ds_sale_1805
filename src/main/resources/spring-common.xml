@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+      
+	
+	<!-- 导入资源文件 -->
+ 	<context:property-placeholder location="classpath:jdbc.properties"/>
+	<!-- 配置数据源 -->
+	
+	<!-- 配置druid数据源  -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="url" value="${jdbcUrl}"/>
+        <property name="username" value="${user}"/>
+        <property name="password" value="${password}"/>
+        <property name="driverClassName" value="${driverClass}"/>
+        <property name="initialSize" value="${initialPoolSize}"></property>
+        <property name="maxActive" value="${maxPoolSize}"></property>
+        <property name="minIdle" value="${minPoolSize}"></property>
+    </bean>
+	
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${driver}" />
+		<property name="url" value="${url}" />
+		<property name="username" value="${username}" />
+		<property name="password" value="${password}" />
+		maxActive: 最大连接数量
+		<property name="maxActive" value="20" />
+		minIdle: 最小空闲连接
+		<property name="minIdle" value="5" />
+		maxIdle: 最大空闲连接
+		<property name="maxIdle" value="20" />
+	</bean> -->
+
+	<!-- mybatis的SqlSession的工厂: SqlSessionFactoryBean dataSource:引用数据源 MyBatis定义数据源,同意加载配置 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 配置mybatis的日志记录 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+		<property name="mapperLocations" value="classpath:com/mr/mapper/*.xml"></property>
+	</bean>
+	<!-- mybatis自动扫描加载Sql映射文件/接口 : MapperScannerConfigurer sqlSessionFactory 
+		basePackage:指定sql映射文件/接口所在的包（自动扫描） -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.mr.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+</beans>
